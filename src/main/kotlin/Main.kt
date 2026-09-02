@@ -2,21 +2,33 @@ package org.example
 
 import java.io.File
 
-private val dictionary = mutableListOf<Word>()
 
 fun main() {
-
-    val words: File = File("words.txt")
+    val dictionary = loadDictionary()
 
     try {
-        for (word in words.readLines()) {
-            val newWord = word.split("|")
-            dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
+        while (true) {
+            println("Меню: \n1 – Учить слова\n2 – Статистика\n0 – Выход")
+            val result = readln()
+            when (result) {
+                "0" -> break
+                "1" -> println("Учить слова")
+                "2" -> println("Статистика")
+                else -> println("Введите число 1, 2 или 0")
+            }
         }
-        println(dictionary)
+
     } catch (e: Exception) {
         println(e.message)
     }
+}
 
-
+fun loadDictionary(): List<Word> {
+    val dictionary = mutableListOf<Word>()
+    val words: File = File("words.txt")
+    for (word in words.readLines()) {
+        val newWord = word.split("|")
+        dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
+    }
+    return dictionary.toList()
 }

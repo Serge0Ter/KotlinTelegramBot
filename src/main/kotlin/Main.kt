@@ -16,8 +16,10 @@ fun main() {
                 "2" -> {
                     val totalCount = dictionary.size
                     val learnedCount = dictionary.filter { it.correctAnswersCount >= 3 }.size
-                    val percent = (learnedCount / totalCount) * 100
-                    println("Выучено $learnedCount из $totalCount | $percent %\n")
+                    if (totalCount > 0) {
+                        val percent = (learnedCount * 100 / totalCount)
+                        println("Выучено $learnedCount из $totalCount | $percent %\n")
+                    }
                 }
 
                 else -> println("Введите число 1, 2 или 0")
@@ -30,7 +32,7 @@ fun main() {
 
 fun loadDictionary(): List<Word> {
     val dictionary = mutableListOf<Word>()
-    val words: File = File("words.txt")
+    val words = File("words.txt")
     for (word in words.readLines()) {
         val newWord = word.split("|")
         dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))

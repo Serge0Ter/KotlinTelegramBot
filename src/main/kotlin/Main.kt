@@ -9,11 +9,11 @@ fun main() {
     try {
         while (true) {
             println("Меню: \n1 – Учить слова\n2 – Статистика\n0 – Выход")
-            val result = readln().toInt()
+            val result = readln()
             when (result) {
-                0 -> break
-                1 -> println("Учить слова")
-                2 -> println("Статистика")
+                "0" -> break
+                "1" -> println("Учить слова")
+                "2" -> println("Статистика")
                 else -> println("Введите число 1, 2 или 0")
             }
         }

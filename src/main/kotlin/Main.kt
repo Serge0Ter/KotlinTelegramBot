@@ -11,13 +11,18 @@ fun main() {
             println("Меню: \n1 – Учить слова\n2 – Статистика\n0 – Выход")
             val result = readln()
             when (result) {
-                "0" -> break
+                "0" -> return
                 "1" -> println("Учить слова")
-                "2" -> println("Статистика")
+                "2" -> {
+                    val totalCount = dictionary.size
+                    val learnedCount = dictionary.filter { it.correctAnswersCount >= 3 }.size
+                    val percent = (learnedCount / totalCount) * 100
+                    println("Выучено $learnedCount из $totalCount | $percent %\n")
+                }
+
                 else -> println("Введите число 1, 2 или 0")
             }
         }
-
     } catch (e: Exception) {
         println(e.message)
     }

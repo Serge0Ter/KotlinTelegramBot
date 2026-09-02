@@ -11,7 +11,7 @@ fun main() {
     try {
         for (word in words.readLines()) {
             val newWord = word.split("|")
-            dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toInt() ?: 0))
+            dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
         }
         println(dictionary)
     } catch (e: Exception) {

@@ -73,6 +73,5 @@ fun learnWords(dictionary: List<Word>) {
             else -> println("Введите число от 1 до 4")
 
         }
-
     }
 }

@@ -12,7 +12,11 @@ fun main() {
             val result = readln()
             when (result) {
                 "0" -> return
-                "1" -> println("Учить слова")
+                "1" -> {
+                    println("Учить слова")
+                    learnWords(dictionary)
+                }
+
                 "2" -> {
                     val totalCount = dictionary.size
                     val learnedCount = dictionary.filter { it.correctAnswersCount >= 3 }.size
@@ -38,4 +42,37 @@ fun loadDictionary(): List<Word> {
         dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
     }
     return dictionary.toList()
+}
+
+fun learnWords(dictionary: List<Word>) {
+    while (true) {
+        val notLearnedList = dictionary.filter { it.correctAnswersCount < 3 }
+        if (notLearnedList.isEmpty()) {
+            println("Все слова в словаре выучены")
+            return
+        }
+        val questionWords = notLearnedList.shuffled().take(4)
+        val word = questionWords.random()
+        val randomTranslate = questionWords.map { it.translate }.shuffled()
+        println("\n${word.original}:")
+        randomTranslate.forEachIndexed { i, str -> println(" ${i + 1} - $str") }
+        val answer = readln().toIntOrNull() ?: -1
+        when (answer) {
+            0 -> {
+                println("Выход")
+                return
+            }
+
+            in 1..4 -> {
+                if (randomTranslate[answer - 1] == word.translate) {
+                    word.correctAnswersCount++
+                    println("Верный ответ")
+                } else println("Неверный ответ")
+            }
+
+            else -> println("Введите число от 1 до 4")
+
+        }
+
+    }
 }

@@ -63,7 +63,7 @@ fun learnWords(dictionary: List<Word>) {
                 return
             }
 
-            in 1..4 -> {
+            in 1..randomTranslate.size -> {
                 if (randomTranslate[answer - 1] == word.translate) {
                     word.correctAnswersCount++
                     println("Верный ответ")
@@ -73,6 +73,5 @@ fun learnWords(dictionary: List<Word>) {
             else -> println("Введите число от 1 до 4")
 
         }
-
     }
 }

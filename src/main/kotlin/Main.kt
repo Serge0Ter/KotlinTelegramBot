@@ -56,6 +56,7 @@ fun learnWords(dictionary: List<Word>) {
         randomTranslate.forEachIndexed { i, str -> println(" ${i + 1} - $str") }
         println("----------\n 0 - Меню")
         val answer = readln().toIntOrNull() ?: -1
+        val correctAnswerId = randomTranslate.indexOf(word.translate)
         when (answer) {
             0 -> {
                 println("Выход")
@@ -63,7 +64,7 @@ fun learnWords(dictionary: List<Word>) {
             }
 
             in 1..randomTranslate.size -> {
-                if (randomTranslate[answer - 1] == word.translate) {
+                if (answer - 1 == correctAnswerId) {
                     word.correctAnswersCount++
                     saveDictionary(dictionary)
                     println("Правильно!")

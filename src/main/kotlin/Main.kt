@@ -2,10 +2,9 @@ package org.example
 
 import java.io.File
 
-
+private val words = File("words.txt")
 fun main() {
     val dictionary = loadDictionary()
-
     try {
         while (true) {
             println("Меню: \n1 – Учить слова\n2 – Статистика\n0 – Выход")
@@ -36,7 +35,6 @@ fun main() {
 
 fun loadDictionary(): List<Word> {
     val dictionary = mutableListOf<Word>()
-    val words = File("words.txt")
     for (word in words.readLines()) {
         val newWord = word.split("|")
         dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
@@ -56,6 +54,7 @@ fun learnWords(dictionary: List<Word>) {
         val randomTranslate = questionWords.map { it.translate }.shuffled()
         println("\n${word.original}:")
         randomTranslate.forEachIndexed { i, str -> println(" ${i + 1} - $str") }
+        println("----------\n 0 - Меню")
         val answer = readln().toIntOrNull() ?: -1
         when (answer) {
             0 -> {
@@ -66,12 +65,17 @@ fun learnWords(dictionary: List<Word>) {
             in 1..randomTranslate.size -> {
                 if (randomTranslate[answer - 1] == word.translate) {
                     word.correctAnswersCount++
-                    println("Верный ответ")
-                } else println("Неверный ответ")
+                    saveDictionary(dictionary)
+                    println("Правильно!")
+                } else println("Неправильно! ${word.original} – это ${word.translate}")
             }
 
             else -> println("Введите число от 1 до 4")
 
         }
     }
+}
+
+fun saveDictionary(dictionary: List<Word>) {
+    words.writeText(dictionary.joinToString("\n") { "${it.original}|${it.translate}|${it.correctAnswersCount}" })
 }

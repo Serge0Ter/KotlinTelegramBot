@@ -1,10 +1,7 @@
 package org.example
 
-import java.io.File
-
-private val words = File("words.txt")
 fun main() {
-    val dictionary = loadDictionary()
+    val trainer = LearnWordsTrainer()
     try {
         while (true) {
             println("Меню: \n1 – Учить слова\n2 – Статистика\n0 – Выход")
@@ -13,16 +10,12 @@ fun main() {
                 "0" -> return
                 "1" -> {
                     println("Учить слова")
-                    learnWords(dictionary)
+                    trainer.learnWords(trainer.dictionary)
                 }
 
                 "2" -> {
-                    val totalCount = dictionary.size
-                    val learnedCount = dictionary.filter { it.correctAnswersCount >= 3 }.size
-                    if (totalCount > 0) {
-                        val percent = (learnedCount * 100 / totalCount)
-                        println("Выучено $learnedCount из $totalCount | $percent %\n")
-                    }
+                    val statistics = trainer.getStatistics()
+                    println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} | ${statistics.percent} %\n")
                 }
 
                 else -> println("Введите число 1, 2 или 0")
@@ -31,52 +24,4 @@ fun main() {
     } catch (e: Exception) {
         println(e.message)
     }
-}
-
-fun loadDictionary(): List<Word> {
-    val dictionary = mutableListOf<Word>()
-    for (word in words.readLines()) {
-        val newWord = word.split("|")
-        dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
-    }
-    return dictionary.toList()
-}
-
-fun learnWords(dictionary: List<Word>) {
-    while (true) {
-        val notLearnedList = dictionary.filter { it.correctAnswersCount < 3 }
-        if (notLearnedList.isEmpty()) {
-            println("Все слова в словаре выучены")
-            return
-        }
-        val questionWords = notLearnedList.shuffled().take(4)
-        val word = questionWords.random()
-        val randomTranslate = questionWords.map { it.translate }.shuffled()
-        println("\n${word.original}:")
-        randomTranslate.forEachIndexed { i, str -> println(" ${i + 1} - $str") }
-        println("----------\n 0 - Меню")
-        val answer = readln().toIntOrNull() ?: -1
-        val correctAnswerId = randomTranslate.indexOf(word.translate)
-        when (answer) {
-            0 -> {
-                println("Выход")
-                return
-            }
-
-            in 1..randomTranslate.size -> {
-                if (answer - 1 == correctAnswerId) {
-                    word.correctAnswersCount++
-                    saveDictionary(dictionary)
-                    println("Правильно!")
-                } else println("Неправильно! ${word.original} – это ${word.translate}")
-            }
-
-            else -> println("Введите число от 1 до 4")
-
-        }
-    }
-}
-
-fun saveDictionary(dictionary: List<Word>) {
-    words.writeText(dictionary.joinToString("\n") { "${it.original}|${it.translate}|${it.correctAnswersCount}" })
 }

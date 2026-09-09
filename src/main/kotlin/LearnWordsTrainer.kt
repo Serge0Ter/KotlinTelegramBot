@@ -6,8 +6,16 @@ data class Statistics(val totalCount: Int, val learnedCount: Int, val percent: I
 
 data class Question(val variants: List<Word>, val correctAnswer: Word)
 
+fun Question.questionToString(): String {
+    val variants = this.variants.mapIndexed { index, word ->
+        " ${index + 1} - ${word.translate}"
+    }.joinToString(separator = "\n")
+    return this.correctAnswer.original + "\n" + variants + "\n----------\n 0 - Меню"
+}
+
 class LearnWordsTrainer {
     private val words = File("words.txt")
+    private var question: Question? = null
     val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {
@@ -22,13 +30,14 @@ class LearnWordsTrainer {
         if (notLearnedList.isEmpty()) return null
         val questionWords = notLearnedList.shuffled().take(4)
         val correctAnswer = questionWords.random()
-        return Question(
+        question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer
         )
+        return question
     }
 
-    fun learnWords(dictionary: List<Word>) {
+    fun learnWords() {
         while (true) {
             val question = getNextQuestions()
             if (question == null) {
@@ -36,21 +45,17 @@ class LearnWordsTrainer {
                 return
             }
             val randomTranslate = question.variants.map { it.translate }.shuffled()
-            println("\n${question.correctAnswer.original}:")
-            randomTranslate.forEachIndexed { i, str -> println(" ${i + 1} - $str") }
-            println("----------\n 0 - Меню")
-            val answer = readln().toIntOrNull() ?: -1
-            val correctAnswerId = randomTranslate.indexOf(question.correctAnswer.translate)
-            when (answer) {
+            println(question.questionToString())
+            val correctAnswerInput = readln().toIntOrNull() ?: -1
+            when (correctAnswerInput) {
                 0 -> {
                     println("Выход")
                     return
                 }
 
                 in 1..randomTranslate.size -> {
-                    if (answer - 1 == correctAnswerId) {
-                        question.correctAnswer.correctAnswersCount++
-                        saveDictionary(dictionary)
+
+                    if (checkAnswer(correctAnswerInput.minus(1))) {
                         println("Правильно!")
                     } else println("Неправильно! ${question.correctAnswer.original} – это ${question.correctAnswer.translate}")
                 }
@@ -61,6 +66,18 @@ class LearnWordsTrainer {
         }
     }
 
+    fun checkAnswer(userAnswerInput: Int?): Boolean {
+        return question?.let {
+            val correctAnswerId = it.variants.indexOf(it.correctAnswer)
+            if (correctAnswerId == userAnswerInput) {
+                it.correctAnswer.correctAnswersCount++
+                saveDictionary(dictionary)
+                true
+            } else {
+                false
+            }
+        } ?: false
+    }
 
     private fun loadDictionary(): List<Word> {
         val dictionary = mutableListOf<Word>()

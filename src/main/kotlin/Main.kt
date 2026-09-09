@@ -10,7 +10,7 @@ fun main() {
                 "0" -> return
                 "1" -> {
                     println("Учить слова")
-                    trainer.learnWords(trainer.dictionary)
+                    trainer.learnWords()
                 }
 
                 "2" -> {

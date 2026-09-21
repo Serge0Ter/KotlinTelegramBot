@@ -16,7 +16,11 @@ fun Question.questionToString(): String {
 class LearnWordsTrainer(private val learnedAnswerCount: Int = 3, private val countOfQuestionWords: Int = 4) {
     private val words = File("words.txt")
     private var question: Question? = null
-    val dictionary = loadDictionary()
+    val dictionary = try {
+        loadDictionary()
+    } catch (e: Exception) {
+        throw e
+    }
 
     fun getStatistics(): Statistics {
         val totalCount = dictionary.size

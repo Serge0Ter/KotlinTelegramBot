@@ -13,7 +13,7 @@ fun Question.questionToString(): String {
     return this.correctAnswer.original + "\n" + variants + "\n----------\n 0 - Меню"
 }
 
-class LearnWordsTrainer {
+class LearnWordsTrainer(private val learnedAnswerCount: Int = 3, private val countOfQuestionWords: Int = 4) {
     private val words = File("words.txt")
     private var question: Question? = null
     val dictionary = loadDictionary()
@@ -26,9 +26,15 @@ class LearnWordsTrainer {
     }
 
     fun getNextQuestions(): Question? {
-        val notLearnedList = dictionary.filter { it.correctAnswersCount < 3 }
+        val notLearnedList = dictionary.filter { it.correctAnswersCount < learnedAnswerCount }
         if (notLearnedList.isEmpty()) return null
-        val questionWords = notLearnedList.shuffled().take(4)
+        val questionWords = if (notLearnedList.size < countOfQuestionWords) {
+            val learnedList = dictionary.filter { it.correctAnswersCount >= learnedAnswerCount }.shuffled()
+            notLearnedList.shuffled()
+                .take(countOfQuestionWords) + learnedList.take(countOfQuestionWords - notLearnedList.size)
+        } else {
+            notLearnedList.shuffled().take(countOfQuestionWords)
+        }.shuffled()
         val correctAnswer = questionWords.random()
         question = Question(
             variants = questionWords,
@@ -80,12 +86,16 @@ class LearnWordsTrainer {
     }
 
     private fun loadDictionary(): List<Word> {
-        val dictionary = mutableListOf<Word>()
-        for (word in words.readLines()) {
-            val newWord = word.split("|")
-            dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
+        try {
+            val dictionary = mutableListOf<Word>()
+            for (word in words.readLines()) {
+                val newWord = word.split("|")
+                dictionary.add(Word(newWord[0], newWord[1], newWord.getOrNull(2)?.toIntOrNull() ?: 0))
+            }
+            return dictionary.toList()
+        } catch (_: IndexOutOfBoundsException) {
+            throw IllegalStateException("Некорректный файл")
         }
-        return dictionary.toList()
     }
 
     private fun saveDictionary(dictionary: List<Word>) {

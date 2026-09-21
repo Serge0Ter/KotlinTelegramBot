@@ -1,7 +1,13 @@
 package org.example
 
 fun main() {
-    val trainer = LearnWordsTrainer()
+    val trainer = try {
+        LearnWordsTrainer()
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
+
     try {
         while (true) {
             println("Меню: \n1 – Учить слова\n2 – Статистика\n0 – Выход")

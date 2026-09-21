@@ -1,6 +1,7 @@
 package org.example
 
 fun main() {
+
     val trainer = try {
         LearnWordsTrainer()
     } catch (e: Exception) {

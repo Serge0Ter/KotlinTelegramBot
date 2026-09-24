@@ -11,24 +11,27 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
     println(getMe(botToken))
-    val updateIdRegex = "\"update_id\":(.+?),".toRegex()
+    val updateIdRegex = "\"update_id\":\\s*(\\d+)".toRegex()
     val textRegex = "\"text\":\"(.+?)\"".toRegex()
     while (true) {
         Thread.sleep(2000)
         val updates = getUpdates(botToken, updateId)
         println(updates)
         val updateIdParsing = findGroups(updates, updateIdRegex)
-        val textParsing = findGroups(updates, textRegex)
-        println("updateIdParsing:  ${updateIdParsing.toList()}")
-        println("textParsing:  ${textParsing.toList()}")
-        updateId = updateIdParsing.max().toInt()
-        println(updateId)
+        val textParsing = findGroup(updates, textRegex)
+        println("updateIdParsing:  $updateIdParsing")
+        println("textParsing:  $textParsing")
+        if (updateIdParsing.isEmpty()) continue
+        updateId = updateIdParsing.maxOf { it.toInt() } + 1
     }
 
 }
 
-fun findGroups(updates: String, regex: Regex): Sequence<String> = regex.findAll(updates).map { it.groupValues[1] }
+fun findGroup(updates: String, regex: Regex): String? =
+    regex.find(updates)?.groups[1]?.value
 
+fun findGroups(updates: String, regex: Regex): List<String> =
+    regex.findAll(updates).map { it.groupValues[1] }.toList()
 
 fun getUpdates(botToken: String, updateId: Int): String {
     val urlGetUpdates = "$BASE_URL$botToken/getUpdates?offset=$updateId"

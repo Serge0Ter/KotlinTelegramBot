@@ -11,15 +11,15 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
     println(getMe(botToken))
-    val updateIdRegex = ".*\"update_id\":\\s*(\\d+)".toRegex()
-    val textRegex = "\"text\":\"(.+?)\"".toRegex()
+    val updateIdRegex = "\"update_id\":\\s*(\\d+)".toRegex()
+    val textRegex = """"text"\s*:\s*"((?:\\.|[^"\\])*)"""".toRegex()
     while (true) {
         Thread.sleep(2000)
         val updates = getUpdates(botToken, updateId)
         println(updates)
-        val updateIdParsing = findGroup(updates, updateIdRegex)
-        if (updateIdParsing == null) continue
-        updateId = updateIdParsing.toInt() + 1
+        val updateIdParsing = findAllGroups(updates, updateIdRegex)
+        if (updateIdParsing.isEmpty()) continue
+        updateId = updateIdParsing.last().toInt() + 1
         val textParsing = findGroup(updates, textRegex)
         if (textParsing == null) continue
         println("updateIdParsing:  $updateIdParsing")
@@ -29,6 +29,9 @@ fun main(args: Array<String>) {
 
 fun findGroup(updates: String, regex: Regex): String? =
     regex.find(updates)?.groups[1]?.value
+
+fun findAllGroups(updates: String, regex: Regex): List<String> =
+    regex.findAll(updates).map { it.groupValues[1] }.toList()
 
 fun getUpdates(botToken: String, updateId: Int): String {
     val urlGetUpdates = "$BASE_URL$botToken/getUpdates?offset=$updateId"

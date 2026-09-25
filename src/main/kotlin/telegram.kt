@@ -11,16 +11,17 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
     println(getMe(botToken))
-    val updateIdRegex = "\"update_id\":\\s*(\\d+)".toRegex()
+    val updateIdRegex = ".*\"update_id\":\\s*(\\d+)".toRegex()
     val textRegex = "\"text\":\"(.+?)\"".toRegex()
     while (true) {
         Thread.sleep(2000)
-        var updates = getUpdates(botToken, updateId)
+        val updates = getUpdates(botToken, updateId)
         println(updates)
         val updateIdParsing = findGroup(updates, updateIdRegex)
         if (updateIdParsing == null) continue
         updateId = updateIdParsing.toInt() + 1
         val textParsing = findGroup(updates, textRegex)
+        if (textParsing == null) continue
         println("updateIdParsing:  $updateIdParsing")
         println("textParsing:  $textParsing")
     }

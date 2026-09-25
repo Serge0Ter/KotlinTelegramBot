@@ -19,16 +19,11 @@ fun main(args: Array<String>) {
         println(updates)
         val updateIdParsing = findGroup(updates, updateIdRegex)
         if (updateIdParsing == null) continue
-        while (true) {
-            val nextId = findGroup(updateIdParsing.toInt().plus(1).toString(), updateIdRegex)
-            if (nextId == null) break
-            updateId = nextId.toInt()
-        }
+        updateId = updateIdParsing.toInt() + 1
         val textParsing = findGroup(updates, textRegex)
         println("updateIdParsing:  $updateIdParsing")
         println("textParsing:  $textParsing")
     }
-
 }
 
 fun findGroup(updates: String, regex: Regex): String? =

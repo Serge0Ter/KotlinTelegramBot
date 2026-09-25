@@ -6,31 +6,32 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 private const val BASE_URL = "https://api.telegram.org/bot"
-private const val UPDATE_ID_KEY = "\"update_id\":"
 
 fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
     println(getMe(botToken))
+    val updateIdRegex = "\"update_id\":\\s*(\\d+)".toRegex()
+    val textRegex = """"text"\s*:\s*"((?:\\.|[^"\\])*)"""".toRegex()
     while (true) {
         Thread.sleep(2000)
         val updates = getUpdates(botToken, updateId)
         println(updates)
-        var startUpdateId = updates.indexOf(UPDATE_ID_KEY)
-        if (startUpdateId == -1) continue
-        while (true) {
-            val nextId = updates.indexOf(UPDATE_ID_KEY, startUpdateId + UPDATE_ID_KEY.length)
-            println(nextId)
-            if (nextId == -1) break
-            startUpdateId = nextId
-        }
-        val endUpdateId = updates.indexOf(",", startUpdateId)
-        if (endUpdateId == -1) continue
-        val updateIdString = updates.substring(startUpdateId + UPDATE_ID_KEY.length, endUpdateId)
-        updateId = updateIdString.toInt() + 1
+        val updateIdParsing = findAllGroups(updates, updateIdRegex)
+        if (updateIdParsing.isEmpty()) continue
+        updateId = updateIdParsing.last().toInt() + 1
+        val textParsing = findGroup(updates, textRegex)
+        if (textParsing == null) continue
+        println("updateIdParsing:  $updateIdParsing")
+        println("textParsing:  $textParsing")
     }
-
 }
+
+fun findGroup(updates: String, regex: Regex): String? =
+    regex.find(updates)?.groups[1]?.value
+
+fun findAllGroups(updates: String, regex: Regex): List<String> =
+    regex.findAll(updates).map { it.groupValues[1] }.toList()
 
 fun getUpdates(botToken: String, updateId: Int): String {
     val urlGetUpdates = "$BASE_URL$botToken/getUpdates?offset=$updateId"

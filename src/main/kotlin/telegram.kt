@@ -15,14 +15,18 @@ fun main(args: Array<String>) {
     val textRegex = "\"text\":\"(.+?)\"".toRegex()
     while (true) {
         Thread.sleep(2000)
-        val updates = getUpdates(botToken, updateId)
+        var updates = getUpdates(botToken, updateId)
         println(updates)
         val updateIdParsing = findGroup(updates, updateIdRegex)
+        if (updateIdParsing == null) continue
+        while (true) {
+            val nextId = findGroup(updateIdParsing.toInt().plus(1).toString(), updateIdRegex)
+            if (nextId == null) break
+            updateId = nextId.toInt()
+        }
         val textParsing = findGroup(updates, textRegex)
         println("updateIdParsing:  $updateIdParsing")
         println("textParsing:  $textParsing")
-        if (updateIdParsing == null) continue
-        updateId = updateIdParsing.toInt() + 1
     }
 
 }

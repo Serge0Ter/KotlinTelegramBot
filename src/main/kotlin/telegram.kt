@@ -6,6 +6,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 private const val BASE_URL = "https://api.telegram.org/bot"
+private const val UPDATE_ID_KEY = "\"update_id\":"
 
 fun main(args: Array<String>) {
     val botToken = args[0]
@@ -17,9 +18,13 @@ fun main(args: Array<String>) {
         Thread.sleep(2000)
         val updates = getUpdates(botToken, updateId)
         println(updates)
-        val updateIdParsing = findAllGroups(updates, updateIdRegex)
-        if (updateIdParsing.isEmpty()) continue
-        updateId = updateIdParsing.last().toInt() + 1
+        val updateIdParsing = findGroup(updates, updateIdRegex)
+        if (updateIdParsing == null) continue
+        while (true) {
+            val nextId = updates.indexOf(UPDATE_ID_KEY, updateIdParsing.toInt().plus(1))
+            if (nextId == -1) break
+            updateId = nextId
+        }
         val textParsing = findGroup(updates, textRegex)
         if (textParsing == null) continue
         println("updateIdParsing:  $updateIdParsing")
@@ -29,9 +34,6 @@ fun main(args: Array<String>) {
 
 fun findGroup(updates: String, regex: Regex): String? =
     regex.find(updates)?.groups[1]?.value
-
-fun findAllGroups(updates: String, regex: Regex): List<String> =
-    regex.findAll(updates).map { it.groupValues[1] }.toList()
 
 fun getUpdates(botToken: String, updateId: Int): String {
     val urlGetUpdates = "$BASE_URL$botToken/getUpdates?offset=$updateId"
